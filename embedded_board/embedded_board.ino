@@ -11,7 +11,7 @@
 
 // Macros of the command identifiers sending
 // and recieving data over the serial port
-#define COMMAND_DELIMITER      '\n'
+#define COMMAND_DELIMITER      '$'
 #define BRUSH_DATA_ID          "B"
 #define SEND_BRUSH_DATA_CMD    "RB"
 #define IR_DATA_ID             "I"
@@ -87,7 +87,7 @@ void RunCommand(String cmd)
 void SendBrush() 
 {
   // Send brush sensor id
-  Serial.print(BRUSH_DATA_ID);
+  Serial.println(BRUSH_DATA_ID);
 
   // Loop through the brush sensor array and
   // send each byte over the serial port
@@ -96,6 +96,9 @@ void SendBrush()
     Serial.println(brushSensor[i]);
     delay(10);
   }
+
+  // Send the command delimiter
+  Serial.println(COMMAND_DELIMITER);
 }
 
 
@@ -103,7 +106,7 @@ void SendBrush()
 void SendIR() 
 {
   // Send ir sensor id
-  Serial.print(IR_DATA_ID + COMMAND_DELIMITER);
+  Serial.println(IR_DATA_ID + COMMAND_DELIMITER);
 
   // Loop through the irSensor array and
   // send each byte over the serial port
@@ -112,6 +115,9 @@ void SendIR()
     Serial.println(irSensor[i]);
     delay(10);
   }
+
+   // Send the command delimiter
+  Serial.println(COMMAND_DELIMITER);
 }
 
 
@@ -119,7 +125,7 @@ void SendIR()
 void SendDistance() 
 {
   // Send distance sensor id
-  Serial.print(DISTANCE_DATA_ID);
+  Serial.println(DISTANCE_DATA_ID);
 
   // Loop through the distanceSensor array and
   // send each byte over the serial port
@@ -128,4 +134,7 @@ void SendDistance()
     Serial.println(distanceSensor[i]);
     delay(10);
   }
+
+   // Send the command delimiter
+  Serial.println(COMMAND_DELIMITER);
 }
