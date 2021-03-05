@@ -106,7 +106,7 @@ void SendBrush()
 void SendIR() 
 {
   // Send ir sensor id
-  Serial.println(IR_DATA_ID + COMMAND_DELIMITER);
+  Serial.println(IR_DATA_ID);
 
   // Loop through the irSensor array and
   // send each byte over the serial port
