@@ -11,14 +11,15 @@
 
 // Macros of the command identifiers sending
 // and recieving data over the serial port
-#define COMMAND_DELIMITER      '$'
-#define STOP_CMD_ID            "S"
-#define FWD_CMD_ID             "F"
-#define ACK                    "A"
+#define COMMAND_DELIMITER  '$'
+#define READ_TABLE_CMD     "R"
+#define WRITE_TABLE_CMD    "W"
+#define TABLE_START        "S"
+#define TABLE_END          "E"
 
-// Global flags to know if the robot is stopped 
-// or going forward
-bool stopped = true;
+// Global variables to control the motor speed, 0-10
+byte left_motor  = 0;
+byte right_motor = 0;
 
 //-------------------------------------------------
 //------------------- SET UP ----------------------
@@ -54,36 +55,32 @@ void loop()
 // ---- Run the inputed command ----
 void RunCommand(String cmd)
 {
-  // Change the status of the robot based on the 
-  // inputed command
-  if( cmd == STOP_CMD_ID )
+  // Run the inputed commands corresponding functions
+  if( cmd == READ_TABLE_CMD )
   {
-    StopRobot();
+    SendTable();
   }
-  else if( cmd == FWD_CMD_ID )
+  else if( cmd == WRITE_TABLE_CMD )
   {
-    MoveFoward();
+    WriteTable();
   }
 }
 
-// ---- Stop the robot ----
-void StopRobot()
+// ---- Send the table data over the serial port ----
+void SendTable() 
 {
-    // Stop the robot
-    stopped = true;
-
-    // Send acknowledge back to navigation
-    Serial.println(ACK);
-    Serial.println(COMMAND_DELIMITER);
+  // Send beginning of table id
+  Serial.println(TABLE_START);
+  
+  // Send all the motor data
+  Serial.println(right_motor);
+  Serial.println(left_motor);
 }
 
-// ---- Move the robot forward ----
-void MoveFoward()
+// ---- Write the data from the serial port to teh table ----
+void WriteTable() 
 {
-    // move the robot forward
-    stopped = false;
-
-    // Send acknowledge back to navigation
-    Serial.println(ACK);
-    Serial.println(COMMAND_DELIMITER);
+  // Update all the motor data
+  Serial.readBytes(&right_motor,1);
+  Serial.readBytes(&left_motor,1);
 }
