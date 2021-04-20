@@ -11,27 +11,27 @@
 
 // Macros of the command identifiers sending
 // and recieving data over the serial port
-#define COMMAND_DELIMITER      '$'
-#define BRUSH_DATA_ID          "B"
-#define SEND_BRUSH_DATA_CMD    "RB"
-#define IR_DATA_ID             "I"
-#define SEND_IR_DATA_CMD       "RI"
-#define DISTANCE_DATA_ID       "D"
-#define SEND_DISTANCE_DATA_CMD "RD"
+#define COMMAND_DELIMITER  '$'
+#define READ_TABLE_CMD     "R"
+#define WRITE_TABLE_CMD    "W"
+#define TABLE_START        "S"
+#define TABLE_END          "E"
 
 // Macros to define the length of the data arrays
 #define IR_LENGTH       5
 #define BUMP_LENGTH     3
-#define BRUSH_LENGTH    1
+#define BRUSH_LENGTH    3
 #define DISTANCE_LENGTH 4
 
 // Global variables holding the sensor data
 // these will be populated and maintained by
 // the embedded team
-byte irSensor[IR_LENGTH]             = {8,9,10,11,12};
-byte bumpSensor[BUMP_LENGTH]         = {1,2,3};
-byte brushSensor[BRUSH_LENGTH]       = {35};
-byte distanceSensor[DISTANCE_LENGTH] = {4,5,6,7};
+byte irSensor[IR_LENGTH]              = {8,9,10,11,12};
+byte bumpSensor[BUMP_LENGTH]          = {1,2,3};
+byte brushCurrentSensor[BRUSH_LENGTH] = {35, 45, 57};
+byte brushTempSensor[BRUSH_LENGTH]    = {42, 25, 12};
+byte brushPositionSensor[BRUSH_LENGTH]= {51, 56, 90};
+byte distanceSensor[DISTANCE_LENGTH]  = {4,5,6,7};
 
 //-------------------------------------------------
 //------------------- SET UP ----------------------
@@ -68,73 +68,65 @@ void loop()
 void RunCommand(String cmd)
 {
   // Run the inputed commands corresponding functions
-  if( cmd == SEND_BRUSH_DATA_CMD )
+  if( cmd == READ_TABLE_CMD )
   {
-    SendBrush();
+    SendTable();
   }
-  else if( cmd == SEND_IR_DATA_CMD )
+  else if( cmd == WRITE_TABLE_CMD )
   {
-    SendIR();
-  }
-  else if( cmd == SEND_DISTANCE_DATA_CMD )
-  {
-    SendDistance();
+    WriteTable();
   }
 }
 
-
-// ---- Send the brush data over the serial port ----
-void SendBrush() 
+// ---- Write the data from the serial port to teh table ----
+void WriteTable() 
 {
-  // Send brush sensor id
-  Serial.println(BRUSH_DATA_ID);
-
-  // Loop through the brush sensor array and
-  // send each byte over the serial port
-  for(int i=0; i < BRUSH_LENGTH; i++) {
-    // Print the current byte of the brushSensor
-    Serial.println(brushSensor[i]);
-    delay(10);
-  }
-
-  // Send the command delimiter
-  Serial.println(COMMAND_DELIMITER);
+  // Update all the sensor arrays
+  UpdateSensorData(bumpSensor, BUMP_LENGTH);
+  UpdateSensorData(irSensor, IR_LENGTH);
+  UpdateSensorData(distanceSensor, DISTANCE_LENGTH);
+  UpdateSensorData(brushCurrentSensor, BRUSH_LENGTH);
+  UpdateSensorData(brushTempSensor, BRUSH_LENGTH);
+  UpdateSensorData(brushPositionSensor, BRUSH_LENGTH);
 }
 
-
-// ---- Send the ir sensor data over the serial port ----
-void SendIR() 
+// ---- Update the sensor data with new data ----
+void UpdateSensorData(byte sensors[], int num_sensors)
 {
-  // Send ir sensor id
-  Serial.println(IR_DATA_ID);
-
-  // Loop through the irSensor array and
-  // send each byte over the serial port
-  for(int i=0; i < IR_LENGTH; i++) {
-    // Print the current byte of the irSensor
-    Serial.println(irSensor[i]);
+   // Loop through the sensor array and
+   // read in a byte from the serial port 
+   // and update the sensor array
+  for(int i=0; i < num_sensors; i++) {
+    // Read in the current byte
+    sensors[i] = Serial.read();
+    Serial.println(sensors[i]);
     delay(10);
   }
-
-   // Send the command delimiter
-  Serial.println(COMMAND_DELIMITER);
 }
 
-
-// ---- Send the distance data over the serial port ----
-void SendDistance() 
+// ---- Send the table data over the serial port ----
+void SendTable() 
 {
-  // Send distance sensor id
-  Serial.println(DISTANCE_DATA_ID);
+  // Send beginning of table id
+  Serial.println(TABLE_START);
 
-  // Loop through the distanceSensor array and
+  // Send all the sensor data
+  SendSensorData(bumpSensor, BUMP_LENGTH);
+  SendSensorData(irSensor, IR_LENGTH);
+  SendSensorData(distanceSensor, DISTANCE_LENGTH);
+  SendSensorData(brushCurrentSensor, BRUSH_LENGTH);
+  SendSensorData(brushTempSensor, BRUSH_LENGTH);
+  SendSensorData(brushPositionSensor, BRUSH_LENGTH);
+}
+
+// ---- Send the sensor data over the serial port ----
+void SendSensorData(byte sensors[], int num_sensors)
+{
+  // Loop through the sensor array and
   // send each byte over the serial port
-  for(int i=0; i < DISTANCE_LENGTH; i++) {
-    // Print the current byte of the distanceSensor
-    Serial.println(distanceSensor[i]);
+  for(int i=0; i < num_sensors; i++) {
+    // Print the current byte of the bumpSensor
+    Serial.println(sensors[i]);
     delay(10);
   }
-
-   // Send the command delimiter
-  Serial.println(COMMAND_DELIMITER);
 }
